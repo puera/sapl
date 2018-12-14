@@ -16,18 +16,19 @@ from .forms import LoginForm, NovaSenhaForm, RecuperarSenhaForm
 from .views import (AlterarSenha, AppConfigCrud, CasaLegislativaCrud,
                     CreateUsuarioView, DeleteUsuarioView, EditUsuarioView,
                     HelpTopicView, ListarUsuarioView, LogotipoView,
-                    RelatorioAtasView, RelatorioAudienciaView, 
+                    RelatorioAtasView, RelatorioAudienciaView,
                     RelatorioDataFimPrazoTramitacaoView,
                     RelatorioHistoricoTramitacaoView,
                     RelatorioMateriasPorAnoAutorTipoView,
                     RelatorioMateriasPorAutorView,
                     RelatorioMateriasTramitacaoView,
-                    RelatorioPresencaSessaoView, 
+                    RelatorioPresencaSessaoView,
                     RelatorioReuniaoView, SaplSearchView,
                     RelatorioNormasPublicadasMesView,
                     RelatorioNormasVigenciaView,
                     EstatisticasAcessoNormas,
-                    RelatoriosListView)
+                    RelatoriosListView,
+                    ListarInconsistenciasView, ListarProtocolosDuplicadosView)
 
 app_name = AppConfig.name
 
@@ -127,6 +128,13 @@ urlpatterns = [
         '(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})$',
         ConfirmarEmailView.as_view(), name='confirmar_email'),
 
+    url(r'^sistema/inconsistencias/$',
+        ListarInconsistenciasView.as_view(),
+        name='lista_inconsistencias'),
+
+    url(r'^sistema/inconsistencias/protocolos_duplicados$',
+        ListarProtocolosDuplicadosView.as_view(),
+        name='lista_protocolos_duplicados'),
 
     # todos os sublinks de sistema devem vir acima deste
     url(r'^sistema/$', permission_required('base.view_tabelas_auxiliares')
