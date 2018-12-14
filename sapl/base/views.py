@@ -29,7 +29,9 @@ from sapl.base.models import Autor, TipoAutor
 from sapl.comissoes.models import Reuniao, Comissao
 from sapl.crud.base import CrudAux, make_pagination
 from sapl.materia.models import (Autoria, MateriaLegislativa,
-                                 TipoMateriaLegislativa, StatusTramitacao, UnidadeTramitacao)
+                                 TipoMateriaLegislativa, StatusTramitacao,
+                                 UnidadeTramitacao)
+from sapl.protocoloadm.models import Protocolo
 from sapl.sessao.models import (PresencaOrdemDia, SessaoPlenaria,
                                 SessaoPlenariaPresenca)
 from sapl.utils import (parlamentares_ativos,
@@ -741,6 +743,55 @@ class RelatorioMateriasPorAutorView(FilterView):
             self.request.GET['data_apresentacao_0'] +
             ' - ' + self.request.GET['data_apresentacao_1'])
 
+        return context
+
+
+class ListarInconsistenciasView(PermissionRequiredMixin, ListView):
+    model = get_user_model()
+    template_name = 'base/lista_inconsistencias.html'
+    context_object_name = 'tabela_inconsistencias'
+    permission_required = ('base.list_appconfig',)
+
+    def get_queryset(self):
+        tabela = {}
+        tabela['Protocolos Duplicados'] = len(protocolo_duplicados())
+
+        t = tabela.items()
+        return t
+
+
+def protocolo_duplicados():
+    protocolos = {}
+    for p in Protocolo.objects.all():
+        key = "{}/{}".format(p.numero, p.ano)
+        val = protocolos.get(key, list())
+        val.append(p)
+        protocolos[key] = val
+
+    lista_duplicados = [v for (k, v) in protocolos.items() if len(v) > 1]
+    return [(v[0], len(v)) for v in lista_duplicados]
+
+
+class ListarProtocolosDuplicadosView(PermissionRequiredMixin, ListView):
+    model = get_user_model()
+    template_name = 'base/protocolos_duplicados.html'
+    context_object_name = 'protocolos_duplicados'
+    permission_required = ('base.list_appconfig',)
+    paginate_by = 10
+
+    def get_queryset(self):
+        return protocolo_duplicados()
+
+    def get_context_data(self, **kwargs):
+        context = super(
+            ListarProtocolosDuplicadosView, self).get_context_data(**kwargs)
+        paginator = context['paginator']
+        page_obj = context['page_obj']
+        context['page_range'] = make_pagination(
+            page_obj.number, paginator.num_pages)
+        context[
+            'NO_ENTRIES_MSG'
+            ] = 'Nenhum protocolo duplicado cadastrado no sistema.'
         return context
 
 
