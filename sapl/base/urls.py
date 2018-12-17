@@ -147,7 +147,6 @@ urlpatterns = [
         ListarParlMandatosIntersecaoView.as_view(),
         name='lista_parlamentares_mandatos_intersecao'),
 
-
     # todos os sublinks de sistema devem vir acima deste
     url(r'^sistema/$', permission_required('base.view_tabelas_auxiliares')
         (TemplateView.as_view(template_name='sistema.html')),
