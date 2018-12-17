@@ -25,7 +25,8 @@ from .views import (AlterarSenha, AppConfigCrud, CasaLegislativaCrud,
                     RelatorioPresencaSessaoView,
                     RelatorioReuniaoView, SaplSearchView,
                     ListarInconsistenciasView, ListarProtocolosDuplicadosView,
-                    ListarProtocolosComMateriasView)
+                    ListarProtocolosComMateriasView,
+                    ListarMateriasCProtocoloInexistenteV)
 
 app_name = AppConfig.name
 
@@ -128,6 +129,9 @@ urlpatterns = [
     url(r'^sistema/inconsistencias/protocolos_com_materias$',
         ListarProtocolosComMateriasView.as_view(),
         name='lista_protocolos_com_materias'),
+    url(r'^sistema/inconsistencias/materias_com_protocolo_inexistente$',
+        ListarMateriasCProtocoloInexistenteV.as_view(),
+        name='lista_materias_com_protocolo_inexistente'),
 
     # todos os sublinks de sistema devem vir acima deste
     url(r'^sistema/$', permission_required('base.view_tabelas_auxiliares')
