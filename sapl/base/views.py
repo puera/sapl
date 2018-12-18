@@ -933,16 +933,10 @@ class ListarInconsistenciasView(PermissionRequiredMixin, ListView):
              len(materias_protocolo_inexistente()))
              )
         tabela.append(
-            ('parlamentares_mandatos_intersecao',
+            ('parlamentares_mandato_intersecao',
              'Parlamentares com mandatos com interseção',
              len(parlamentares_mandatos_intersecao()))
              )
-        tabela.append(
-            ('materias_com_protocolo_inexistente',
-             'Matérias Legislativas com protocolo inexistente',
-             len(materias_com_protocolo_inexistente())
-             )
-        )
 
         return tabela
 
