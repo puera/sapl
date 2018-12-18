@@ -933,7 +933,7 @@ class ListarInconsistenciasView(PermissionRequiredMixin, ListView):
              len(materias_protocolo_inexistente()))
              )
         tabela.append(
-            ('parlamentares_mandato_intersecao',
+            ('parlamentares_mandatos_intersecao',
              'Parlamentares com mandatos com interseção',
              len(parlamentares_mandatos_intersecao()))
              )
