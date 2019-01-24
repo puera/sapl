@@ -10,16 +10,16 @@ from django.contrib.auth.forms import (AuthenticationForm, PasswordResetForm,
                                        SetPasswordForm)
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
-from django.db import models, transaction
+from django.db import transaction
 from django.db.models import Q
 from django.forms import Form, ModelForm
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
 import django_filters
 
-from sapl.audiencia.models import AudienciaPublica, TipoAudienciaPublica
+from sapl.audiencia.models import AudienciaPublica
 from sapl.base.models import Autor, TipoAutor
-from sapl.comissoes.models import Reuniao, Comissao
+from sapl.comissoes.models import Reuniao
 from sapl.crispy_layout_mixin import (SaplFormLayout, form_actions, to_column,
                                       to_row)
 from sapl.materia.models import (
@@ -28,10 +28,10 @@ from sapl.norma.models import (NormaJuridica)
 from sapl.parlamentares.models import SessaoLegislativa
 from sapl.sessao.models import SessaoPlenaria
 from sapl.settings import MAX_IMAGE_UPLOAD_SIZE
-from sapl.utils import (RANGE_ANOS, YES_NO_CHOICES,
+from sapl.utils import (YES_NO_CHOICES,
                         ChoiceWithoutValidationField, ImageThumbnailFileInput,
-                        RangeWidgetOverride, autor_label, autor_modal,
-                        models_with_gr_for_model, qs_override_django_filter,
+                        autor_label, autor_modal,
+                        qs_override_django_filter,
                         choice_anos_com_normas, choice_anos_com_materias,
                         FilterOverridesMetaMixin)
 

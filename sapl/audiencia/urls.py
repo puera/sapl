@@ -1,5 +1,5 @@
 from django.conf.urls import include, url
-from sapl.audiencia.views import (index, AudienciaCrud,AnexoAudienciaPublicaCrud)
+from sapl.audiencia.views import (AudienciaCrud,AnexoAudienciaPublicaCrud)
 
 from .apps import AppConfig
 

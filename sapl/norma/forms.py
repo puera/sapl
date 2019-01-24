@@ -5,19 +5,18 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db import models
 from django.db.models import Q
 from django.forms import ModelForm, widgets, ModelChoiceField
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 import django_filters
 
-from sapl.base.models import Autor, TipoAutor
+from sapl.base.models import TipoAutor
 from sapl.crispy_layout_mixin import form_actions, to_row
 from sapl.materia.forms import choice_anos_com_materias
 from sapl.materia.models import MateriaLegislativa, TipoMateriaLegislativa
 from sapl.settings import MAX_DOC_UPLOAD_SIZE
-from sapl.utils import NormaPesquisaOrderingFilter, RangeWidgetOverride,\
+from sapl.utils import NormaPesquisaOrderingFilter,\
     choice_anos_com_normas, FilterOverridesMetaMixin
 
 from .models import (AnexoNormaJuridica, AssuntoNorma, NormaJuridica, NormaRelacionada,

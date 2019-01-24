@@ -14,7 +14,6 @@ from django.core.signing import Signer
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
 from django.db.models import Q
-from django.db.models.query import QuerySet
 from django.http.response import (HttpResponse, HttpResponseRedirect,
                                   JsonResponse, Http404)
 from django.shortcuts import get_object_or_404, redirect
@@ -49,8 +48,7 @@ from sapl.compilacao.models import (STATUS_TA_EDITION, STATUS_TA_PRIVATE,
 from sapl.compilacao.utils import (DISPOSITIVO_SELECT_RELATED,
                                    DISPOSITIVO_SELECT_RELATED_EDIT,
                                    get_integrations_view_names)
-from sapl.crud.base import Crud, CrudAux, CrudListView, make_pagination
-from sapl.settings import BASE_DIR
+from sapl.crud.base import CrudAux, CrudListView, make_pagination
 
 
 TipoNotaCrud = CrudAux.build(TipoNota, 'tipo_nota')

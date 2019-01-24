@@ -1,7 +1,6 @@
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete
 from django.dispatch import receiver
 
-from sapl.materia.models import Tramitacao
 from sapl.protocoloadm.models import TramitacaoAdministrativo
 from sapl.base.signals import tramitacao_signal
 from sapl.utils import get_base_url

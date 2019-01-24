@@ -6,7 +6,6 @@
    Empresa: Interlegis
    versão: 1.0
 """
-import os
 import time
 
 from trml2pdf import parseString

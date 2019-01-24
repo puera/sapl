@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 from model_mommy import mommy
 
-from sapl.comissoes.models import Comissao, Composicao, Periodo, TipoComissao, Reuniao
+from sapl.comissoes.models import Comissao, Composicao, Periodo, TipoComissao
 from sapl.parlamentares.models import Filiacao, Parlamentar, Partido
 from sapl.comissoes import forms
 

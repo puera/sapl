@@ -3,22 +3,15 @@ import logging
 from django.core.urlresolvers import reverse
 from django.db.models import F
 from django.http.response import HttpResponseRedirect
-from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import ListView
-from django.views.generic.base import RedirectView
-from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormMixin
 
-from sapl.base.models import AppConfig as AppsAppConfig
-from sapl.comissoes.apps import AppConfig
 from sapl.comissoes.forms import (ComissaoForm, ComposicaoForm,
                                   DocumentoAcessorioCreateForm,
                                   DocumentoAcessorioEditForm,
                                   ParticipacaoCreateForm, ParticipacaoEditForm,
                                   PeriodoForm, ReuniaoForm)
 from sapl.crud.base import (RP_DETAIL, RP_LIST, Crud, CrudAux,
-                            MasterDetailCrud,
-                            PermissionRequiredForAppCrudMixin)
+                            MasterDetailCrud)
 from sapl.materia.models import MateriaLegislativa, Tramitacao
 
 from .models import (CargoComissao, Comissao, Composicao, DocumentoAcessorio,

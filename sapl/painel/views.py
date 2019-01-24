@@ -8,16 +8,15 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
-from django.http.response import Http404, HttpResponseRedirect
+from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from sapl.base.models import AppConfig as ConfiguracoesAplicacao
 from sapl.base.models import CasaLegislativa
 from sapl.crud.base import Crud
 from sapl.painel.apps import AppConfig
-from sapl.parlamentares.models import Legislatura, Parlamentar, Votante
+from sapl.parlamentares.models import Votante
 from sapl.sessao.models import (ExpedienteMateria, OradorExpediente, OrdemDia,
                                 PresencaOrdemDia, RegistroVotacao,
                                 SessaoPlenaria, SessaoPlenariaPresenca,

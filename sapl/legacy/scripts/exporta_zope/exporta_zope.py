@@ -6,7 +6,6 @@
 # e depende apenas do descrito no arquivo requiments.txt
 
 import cStringIO
-import hashlib
 import mimetypes
 import os
 import sys

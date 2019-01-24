@@ -1,6 +1,3 @@
-import inspect
-
-from sapl.base.models import Autor
 from sapl.legacy.migracao_dados import appconfs
 
 

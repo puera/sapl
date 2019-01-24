@@ -7,7 +7,6 @@ from crispy_forms.layout import HTML, Button, Column, Fieldset, Layout, Div
 from django import forms
 from django.core.exceptions import (MultipleObjectsReturned,
                                     ObjectDoesNotExist, ValidationError)
-from django.db import models
 from django.db.models import Max
 from django.forms import ModelForm
 from django.utils import timezone
@@ -20,7 +19,7 @@ from sapl.materia.models import (MateriaLegislativa, TipoMateriaLegislativa,
                                  UnidadeTramitacao)
 from sapl.protocoloadm.models import Protocolo
 from sapl.utils import (RANGE_ANOS, YES_NO_CHOICES, AnoNumeroOrderingFilter,
-                        RangeWidgetOverride, autor_label, autor_modal,
+                        autor_label, autor_modal,
                         choice_anos_com_protocolo, choice_force_optional,
                         choice_anos_com_documentoadministrativo,
                         FilterOverridesMetaMixin, choice_anos_com_materias)

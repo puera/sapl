@@ -4,7 +4,7 @@ from model_mommy import mommy
 
 from sapl.audiencia import forms
 from sapl.audiencia.models import TipoAudienciaPublica
-from sapl.materia.models import MateriaLegislativa, TipoMateriaLegislativa
+from sapl.materia.models import  TipoMateriaLegislativa
 
 @pytest.mark.django_db(transaction=False)
 def test_valida_campos_obrigatorios_audiencia_form():

@@ -6,9 +6,6 @@
 """
 import time
 
-from django.template.defaultfilters import safe
-from django.utils.html import strip_tags
-
 from sapl.sessao.models import ResumoOrdenacao
 
 from trml2pdf import parseString

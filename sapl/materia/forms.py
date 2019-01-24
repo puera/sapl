@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.files.base import File
 from django.core.urlresolvers import reverse
-from django.db import models, transaction
+from django.db import transaction
 from django.db.models import Max, Q, F
 from django.forms import ModelChoiceField, ModelForm, widgets
 from django.forms.forms import Form
@@ -42,7 +42,7 @@ from sapl.protocoloadm.models import Protocolo, DocumentoAdministrativo
 from sapl.settings import MAX_DOC_UPLOAD_SIZE
 from sapl.utils import (YES_NO_CHOICES, SEPARADOR_HASH_PROPOSICAO,
                         ChoiceWithoutValidationField,
-                        MateriaPesquisaOrderingFilter, RangeWidgetOverride,
+                        MateriaPesquisaOrderingFilter,
                         autor_label, autor_modal, gerar_hash_arquivo,
                         models_with_gr_for_model, qs_override_django_filter,
                         choice_anos_com_materias, FilterOverridesMetaMixin)

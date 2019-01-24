@@ -1,4 +1,4 @@
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta
 
 from django.core.urlresolvers import reverse
 from django.utils import timezone

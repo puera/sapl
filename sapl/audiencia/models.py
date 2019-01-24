@@ -4,9 +4,8 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from model_utils import Choices
 from sapl.materia.models import MateriaLegislativa
-from sapl.parlamentares.models import (CargoMesa, Parlamentar)
 
-from sapl.utils import (YES_NO_CHOICES, SaplGenericRelation,
+from sapl.utils import (YES_NO_CHOICES,
                         restringe_tipos_de_arquivo_txt, texto_upload_path)
 
 
