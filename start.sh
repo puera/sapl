@@ -70,6 +70,8 @@ if [ "${USE_SOLR-False}" == "True" ]; then
     echo "REPLICATION FACTOR: $RF"
     echo "MAX SHARDS PER NODE: $MAX_SHARDS_PER_NODE"
     echo "========================================="
+
+    java -jar tika-server-1.20.jar &
     
     /bin/bash check_solr.sh $SOLR_URL
 

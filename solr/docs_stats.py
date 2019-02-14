@@ -5,7 +5,7 @@ import requests
     total de documentos indexados.
 """
 
-BASE_URL='http://localhost:8983/solr'
+BASE_URL='https://ilsapl:docker_esta_mandando_agora@solrcloud.interlegis.leg.br/solr'
 
 
 if __name__=='__main__':
@@ -19,6 +19,9 @@ if __name__=='__main__':
     
     print("Collection\t\t\tNumber of documents")
     print("--------------------------------------------------")
+
+    from collections import OrderedDict
+    result_map = OrderedDict()
     
     for c in collections:
         r = requests.get(BASE_URL+'/{}/select?q=*:*&rows=0'.format(c))
@@ -27,6 +30,8 @@ if __name__=='__main__':
 
         if num_docs >= largest_col[1]:
             largest_col = (c, num_docs)
+
+        result_map[c] = num_docs
         
         print("%30s\t%6s" % (c, num_docs))
 
@@ -34,4 +39,12 @@ if __name__=='__main__':
     print("- Number of collections: %s\n" % len(collections))
     print("- Largest collection: '%s' (%s docs)\n" % largest_col)
     print("- Total documents accross all collections: %s\n" % total_docs)
+
+    largest = largest_col[1]
+    for k,v in result_map.iteritems():
+        tiles = (v * 80) / largest
+        bars = '#'*tiles
+        #print(tiles)
+        #print('#'*tiles)
+        print("%30s\t%6s\t%s" % (k, v, bars))
 

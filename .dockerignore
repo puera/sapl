@@ -2,3 +2,6 @@ media
 collected_static
 .git
 whoosh
+*.tar.gz
+*.bak
+*.obj
