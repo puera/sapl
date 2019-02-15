@@ -1,6 +1,6 @@
 import os.path
-import textract
 import logging
+import requests
 
 from django.db.models import F, Q, Value
 from django.db.models.fields import TextField
@@ -11,14 +11,54 @@ from haystack.constants import Indexable
 from haystack.fields import CharField
 from haystack.indexes import SearchIndex
 from haystack.utils import get_model_ct_tuple
-from textract.exceptions import ExtensionNotSupported
+
 
 from sapl.compilacao.models import (STATUS_TA_IMMUTABLE_PUBLIC,
                                     STATUS_TA_PUBLIC, Dispositivo)
 from sapl.materia.models import DocumentoAcessorio, MateriaLegislativa
 from sapl.norma.models import NormaJuridica
 from sapl.settings import SOLR_URL
-from sapl.utils import RemoveTag
+
+#
+# def solr_extraction(arquivo):
+#     logger = logging.getLogger(__name__)
+# #     if not self.backend:
+# #         self.backend = connections['default'].get_backend()
+# #     try:
+# #         with open(arquivo.path, 'rb') as f:
+# #             content = self.backend.extract_file_contents(f)
+# #             if not content or not content['contents']:
+# #                 return ''
+# #             data = content['contents']
+# #     except Exception as e:
+# #         print('erro processando arquivo: ' % arquivo.path)
+# #         logger.error(arquivo.path)
+# #         logger.error('erro processando arquivo: ' % arquivo.path)
+# #         data = ''
+# #     return data
+#
+#     data = ''
+#     try:
+#         with open(arquivo.path, "rb") as payload:
+#
+#             resp = requests.put("http://localhost:9998/rmeta/text",
+#                                 payload.read(),
+#                                 headers={"Accept": "application/json",
+#                                          "Content-Disposition": "attachment; filename={}".format(
+#                                              os.path.basename(arquivo.path)),
+#                                          # "X-Tika-PDFOcrStrategy": "ocr_only",
+#                                          },
+#                                 verify=False
+#                                 )
+#             as_json = resp.json()
+#             for i in as_json:
+#                 data += i["X-TIKA:content"]
+#     except Exception as e:
+#         print('erro processando arquivo: ' % arquivo.path)
+#         logger.error(arquivo.path)
+#         logger.error('erro processando arquivo: ' % arquivo.path)
+#         data = ''
+#     return data
 
 
 class TextExtractField(CharField):
@@ -33,7 +73,14 @@ class TextExtractField(CharField):
         if not isinstance(self.model_attr, (list, tuple)):
             self.model_attr = (self.model_attr, )
 
+    def print_error(self, arquivo, error):
+        msg = 'Erro inesperado processando arquivo %s erro: %s' % (
+            arquivo.path, error)
+        print(msg, error)
+        self.logger.error(msg, error)
+
     def solr_extraction(self, arquivo):
+        logger = logging.getLogger(__name__)
         if not self.backend:
             self.backend = connections['default'].get_backend()
         try:
@@ -44,56 +91,22 @@ class TextExtractField(CharField):
                 data = content['contents']
         except Exception as e:
             print('erro processando arquivo: ' % arquivo.path)
-            self.logger.error(arquivo.path)
-            self.logger.error('erro processando arquivo: ' % arquivo.path)
+            logger.error(arquivo.path)
+            logger.error('erro processando arquivo: ' % arquivo.path)
             data = ''
         return data
-
-    def whoosh_extraction(self, arquivo):
-
-        if arquivo.path.endswith('html') or arquivo.path.endswith('xml'):
-            with open(arquivo.path, 'r', encoding="utf8", errors='ignore') as f:
-                content = ' '.join(f.read())
-                return RemoveTag(content)
-
-        else:
-            return textract.process(
-                arquivo.path,
-                language='pt-br').decode('utf-8').replace('\n', ' ').replace(
-                '\t', ' ')
-
-    def print_error(self, arquivo, error):
-        msg = 'Erro inesperado processando arquivo %s erro: %s' % (
-            arquivo.path, error)
-        print(msg, error)
-        self.logger.error(msg, error)
 
     def file_extractor(self, arquivo):
         if not os.path.exists(arquivo.path) or \
                 not os.path.splitext(arquivo.path)[1][:1]:
             return ''
 
-        # Em ambiente de produção utiliza-se o SOLR
         if SOLR_URL:
             try:
                 return self.solr_extraction(arquivo)
             except Exception as err:
                 print(str(err))
                 self.print_error(arquivo, err)
-
-        # Em ambiente de DEV utiliza-se o Whoosh
-        # Como ele não possui extração, faz-se uso do textract
-        else:
-            try:
-                self.logger.debug("Tentando whoosh_extraction no arquivo {}".format(arquivo.path))
-                return self.whoosh_extraction(arquivo)
-                self.print_error(arquivo)
-            except ExtensionNotSupported as err:
-                print(str(err))
-                self.logger.error(str(err))
-            except Exception as err:
-                print(str(err))
-                self.print_error(arquivo, str(err))
         return ''
 
     def ta_extractor(self, value):

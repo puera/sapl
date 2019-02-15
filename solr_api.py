@@ -152,4 +152,4 @@ if __name__ == '__main__':
     num_docs = client.get_num_docs(collection)
     if num_docs == 0:
         print("Performing a full reindex of '%s' collection..." % collection)
-        p = subprocess.call(["python3", "manage.py", "rebuild_index", "--noinput"])
+        # p = subprocess.call(["python3", "manage.py", "rebuild_index", "--noinput"])

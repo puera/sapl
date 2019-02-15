@@ -71,7 +71,7 @@ if [ "${USE_SOLR-False}" == "True" ]; then
     echo "MAX SHARDS PER NODE: $MAX_SHARDS_PER_NODE"
     echo "========================================="
 
-    java -jar tika-server-1.20.jar &
+    java -jar tika-server-1.20.jar -spawnChild &
     
     /bin/bash check_solr.sh $SOLR_URL
 

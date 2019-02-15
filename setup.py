@@ -36,10 +36,8 @@ install_requires = [
     'unipath==1.1',
     'WeasyPrint==44',
     'gunicorn==19.9.0',
-
-    'textract==1.5.0',
+    'tika==1.19'
     'pysolr==3.6.0',
-    'whoosh==2.7.4',
 
     # 'git+git://github.com/interlegis/trml2pdf.git',
     # 'git+git://github.com/interlegis/django-admin-bootstrapped',
