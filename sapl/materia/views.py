@@ -2041,6 +2041,7 @@ class DocumentoAcessorioEmLoteView(PermissionRequiredMixin, FilterView):
         messages.add_message(request, messages.SUCCESS, msg)
         return self.get(request, self.kwargs)
 
+
 class MateriaAnexadaEmLoteView(PermissionRequiredMixin, FilterView):
     filterset_class = AnexadaEmLoteFilterSet
     template_name = 'materia/em_lote/anexada.html'
@@ -2096,7 +2097,7 @@ class MateriaAnexadaEmLoteView(PermissionRequiredMixin, FilterView):
             anexada.data_desanexacao = data_desanexacao
             anexada.save()
 
-        msg = _('Materia(s) anexada(s).')
+        msg = _('Matéria(s) anexada(s).')
         messages.add_message(request, messages.SUCCESS, msg)
         return self.get(request, self.kwargs)
 
