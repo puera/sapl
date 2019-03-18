@@ -9,11 +9,11 @@
     {% endif %}
 
     {% if show_results %}
-        {% if object_list.count > 0 %}
-            {% if objects_list.count == 1 %}
-                <h3 style="text-align: right;">{% trans 'Pesquisa concluída com sucesso! Foi encontrado 1 documento' %}</h3>
+        {% if numero_res > 0 %}
+            {% if numero_res == 1 %}
+                <h3 style="text-align: right;">{% trans 'Pesquisa concluída com sucesso! Foi encontrado 1 documento.' %}</h3>
             {% else %}
-                <h3 style="text-align: right;">{% blocktrans with object_list.count as total_documentos %}Foram encontrados {{total_documentos}} documentos.{% endblocktrans %}</h3>
+                <h3 style="text-align: right;">Foram encontrados {{ numero_res }} documentos.</h3>
             {% endif %}
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
@@ -21,7 +21,7 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Data Anexação</label>
+                                <label>Data Anexação*</label>
                                 <input type="text" name="data_anexacao" class="form-control dateinput" required="True">
                             </div>
                         </div>
@@ -66,7 +66,7 @@
         {% else %}
             <tr>
                 <td>
-                    <h3 style="text-align: right;">Nenhum {{filter_url}} documento encontrado</h3>
+                    <h3 style="text-align: right;">Nenhum documento encontrado.</h3>
                 </td>
             </tr>
         {% endif %}
@@ -75,8 +75,8 @@
 {% block extra_js %}
     <script language="JavaScript">
         function checkAll(event) {
-            $('[name=documento.id]').each(function() {
-                $(this).prop('checked', event.target.checked ? 'checked': null);
+            $('[name=documento_id]').each(function() {
+                $(this).prop('checked', event.target.checked ? null: 'checked');
                 $(this).trigger('click');
             });
         }
