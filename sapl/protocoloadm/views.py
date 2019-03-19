@@ -1011,11 +1011,13 @@ class DocumentoAnexadoEmLoteView(PermissionRequiredMixin, FilterView):
 
         context['object_list'] = []
         for obj in context['temp_object_list']:
+            
             if not obj.pk == int(context['root_pk']):
                 documento_principal = DocumentoAdministrativo.objects.get(id=context['root_pk'])
                 documento_anexado = obj
                 is_anexado = Anexado.objects.filter(documento_principal=documento_principal,
                                                     documento_anexado=documento_anexado).exists()
+                
                 if not is_anexado:
                     context['object_list'].append(obj)
         

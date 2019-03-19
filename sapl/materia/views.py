@@ -2045,7 +2045,7 @@ class DocumentoAcessorioEmLoteView(PermissionRequiredMixin, FilterView):
 class MateriaAnexadaEmLoteView(PermissionRequiredMixin, FilterView):
     filterset_class = AnexadaEmLoteFilterSet
     template_name = 'materia/em_lote/anexada.html'
-    permission_required = ('materia.add_documentoacessorio',)
+    permission_required = ('materia.add_anexada',)
 
     def get_context_data(self, **kwargs):
         context = super(MateriaAnexadaEmLoteView,
@@ -2055,15 +2055,42 @@ class MateriaAnexadaEmLoteView(PermissionRequiredMixin, FilterView):
 
         context['subnav_template_name'] = 'materia/subnav.yaml'
 
-
         context['title'] = _('Matérias Anexadas em Lote')
+
         # Verifica se os campos foram preenchidos
-        if not self.filterset.form.is_valid():
+        if not self.request.GET.get('tipo', " "):
+            msg =_('Por favor, selecione um tipo de matéria.')
+            messages.add_message(self.request, messages.ERROR, msg)
+
+            if not self.request.GET.get('data_apresentacao_0', " ") or not self.request.GET.get('data_apresentacao_1', " "):
+                msg =_('Por favor, preencha as datas.')
+                messages.add_message(self.request, messages.ERROR, msg)
+
+            return context
+
+        if not self.request.GET.get('data_apresentacao_0', " ") or not self.request.GET.get('data_apresentacao_1', " "):
+            msg =_('Por favor, preencha as datas.')
+            messages.add_message(self.request, messages.ERROR, msg)
             return context
 
         qr = self.request.GET.copy()
-        context['object_list'] = context['object_list'].order_by(
-            'ano', 'numero')
+        context['temp_object_list'] = context['object_list'].order_by(
+            'numero', '-ano')
+        
+        context['object_list'] = []
+        for obj in context['temp_object_list']:
+            
+            if not obj.pk == int(context['root_pk']):
+                materia_principal = MateriaLegislativa.objects.get(id=context['root_pk'])
+                materia_anexada = obj
+                is_anexada = Anexada.objects.filter(materia_principal=materia_principal,
+                                                    materia_anexada=materia_anexada)
+                
+                if not is_anexada:
+                    context['object_list'].append(obj)
+
+        context['numero_res'] = len(context['object_list'])
+
         context['filter_url'] = ('&' + qr.urlencode()) if len(qr) > 0 else ''
 
         context['show_results'] = show_results_filter_set(qr)
@@ -2089,7 +2116,6 @@ class MateriaAnexadaEmLoteView(PermissionRequiredMixin, FilterView):
 
         principal = MateriaLegislativa.objects.get(pk = kwargs['pk'])
         for materia in MateriaLegislativa.objects.filter(id__in = marcadas):
-
             anexada = Anexada()
             anexada.materia_principal = principal
             anexada.materia_anexada = materia
