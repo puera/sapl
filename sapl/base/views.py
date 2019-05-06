@@ -40,10 +40,10 @@ from sapl.crud.base import CrudAux, make_pagination
 from sapl.materia.models import (Autoria, MateriaLegislativa, Proposicao,
                                  TipoMateriaLegislativa, StatusTramitacao, UnidadeTramitacao)
 from sapl.norma.models import (NormaJuridica, NormaEstatisticas)
-from sapl.parlamentares.models import Parlamentar, Legislatura, Mandato, Filiacao
+from sapl.parlamentares.models import Parlamentar, Legislatura, Mandato, Filiacao, Bancada
 from sapl.protocoloadm.models import Protocolo
 from sapl.sessao.models import (PresencaOrdemDia, SessaoPlenaria,
-                                SessaoPlenariaPresenca, Bancada)
+                                SessaoPlenariaPresenca)
 from sapl.utils import (parlamentares_ativos, gerar_hash_arquivo, SEPARADOR_HASH_PROPOSICAO,
                         show_results_filter_set, mail_service_configured,
                         intervalos_tem_intersecao,)
