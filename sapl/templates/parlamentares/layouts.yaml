@@ -118,9 +118,7 @@ ComposicaoColigacao:
 
 Bancada:
   {% trans 'Bancada' %}:
-  - legislatura
-  - nome partido
-  - data_criacao data_extincao
+  - nome:8 ativo
   - descricao
 
 CargoBancada:

@@ -624,16 +624,16 @@ class BancadaForm(ModelForm):
 
     class Meta:
         model = Bancada
-        fields = ['nome', 'descricao', 'ativo']
+        fields = '__all__'
 
     def clean(self):
-        super(BancadaForm, self).clean()
+        super().clean()
 
         if not self.is_valid():
             return self.cleaned_data
 
     def save(self, commit=True):
-        bancada = super(BancadaForm, self).save(commit)
+        bancada = super().save(commit)
         content_type = ContentType.objects.get_for_model(Bancada)
         object_id = bancada.pk
         tipo = TipoAutor.objects.get(content_type=content_type)

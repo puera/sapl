@@ -43,7 +43,7 @@ from .models import (Bancada, CargoBancada, CargoMesa, Coligacao, ComposicaoColi
                      Bloco)
 
 
-CargoBancadaCrud = CrudAux.build(CargoBancada, '')
+CargoBancadaCrud = CrudAux.build(CargoBancada, 'cargo_bancada')
 CargoMesaCrud = CrudAux.build(CargoMesa, 'cargo_mesa')
 TipoDependenteCrud = CrudAux.build(TipoDependente, 'tipo_dependente')
 NivelInstrucaoCrud = CrudAux.build(NivelInstrucao, 'nivel_instrucao')
@@ -103,6 +103,7 @@ class VotanteView(MasterDetailCrud):
 
 class BancadaCrud(CrudAux):
     model = Bancada
+    parent_field = 'parlamentares'
 
     class CreateView(CrudAux.CreateView):
         form_class = BancadaForm
