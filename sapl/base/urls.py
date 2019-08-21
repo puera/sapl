@@ -223,7 +223,7 @@ urlpatterns = [
         name='login'),
     url(r'^logout/$', views.logout, {'next_page': '/login'}, name='logout'),
 
-    url(r'^sistema/search/', SaplSearchView(), name='haystack_search'),
+    url(r'^sistema/search/', SaplSearchView.as_view(), name='haystack_search'),
 
     # Folhas XSLT e extras referenciadas por documentos migrados do sapl 2.5
     url(r'^(sapl/)?XSLT/HTML/(?P<path>.*)$', RedirectView.as_view(

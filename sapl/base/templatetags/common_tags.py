@@ -341,5 +341,9 @@ def render_chunk_vendors(extension=None):
 def dont_break_out(value):
     _safe = '<div class="dont-break-out">{}</div>'.format(value)
     _safe = mark_safe(_safe)
-    return _safe    
+    return _safe
 
+
+@register.filter
+def remove_facet(value, facet):
+    return '&'.join([i for i in value.split('&') if not facet in i])

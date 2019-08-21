@@ -33,16 +33,57 @@
     </div>
     </br>
     {% if query %}
+    <!-- Begin faceting. -->
+    <div class="container">
+        <div class="row">
+              <div class="col-md-6 col-sm-6">
+                  <dl>
+
+                      {% if facets.fields.ano %}
+                          <dt>Ano</dt>
+                          {# Provide only the top 5 authors #}
+                          {% for ano in facets.fields.ano|slice:":10" %}
+                              {% if ano.1 %}
+                              <dd><a href="{{ pageless_url }}&amp;selected_facets=ano:{{ ano.0|urlencode }}">{{ ano.0 }}</a> ({{ ano.1 }})</dd>
+                              {% endif %}
+                          {% endfor %}
+                      {% endif %}
+                  </dl>
+              </div>
+              <div class="col-md-6 col-sm-6">
+                  <dl>
+                      {% if facets.fields.tipo %}
+                          <dt>Tipo</dt>
+                          {% for tipo in facets.fields.tipo|slice:":10" %}
+                             {% if tipo.1 %}
+                              <dd><a href="{{ pageless_url }}&amp;selected_facets=tipo:{{ tipo.0|urlencode }}">{{ tipo.0 }}</a> ({{ tipo.1 }})</dd>
+                             {% endif %}
+                          {% endfor %}
+                      {% endif %}
+                  </dl>
+              </div>
+        </div>
+    </div>
+    <!-- End faceting -->
+
       <table class="table table-striped table-bordered">
         <thead class="thead-default">
-          <tr><td><h3>Resultados - Foram encontrados {{ page.paginator.count }} registros <br/>
-            {% if page.paginator.count %}
-            Registros {{ page.start_index }} a {{ page.end_index }} de {{ page.paginator.count }}
+          <tr><td><h3>Resultados - Foram encontrados {{ paginator.count }} registros <br/>
+            {% if paginator.count %}
+            Registros {{ page_obj.start_index }} a {{ page_obj.end_index }} de {{ paginator.count }}
             {% endif %}
+            <br/>
+            <strong>Consulta</strong>: "{{ query }}"&nbsp;&nbsp;&nbsp;
+              {% if queried_facets %}
+              <strong>Filtragem:</strong> {{ queried_facets|join:' / ' }}
+              {% endif %}
+              {% if queried_models %}
+              <strong>Tipos de documentos:</strong> {{ queried_models|join:' / ' }}
+              {% endif %}
           </h3></td></tr>
         </thead>
 
-      {% for result in page.object_list %}
+      {% for result in object_list %}
         <tr>
           <td>
             {% if result.object|search_get_model == 'm' %}
@@ -91,15 +132,15 @@
         {% endfor %}
       </table>
 
-      {% if page.has_previous or page.has_next %}
+      {% if page_obj.has_previous or page_obj.has_next %}
         <div>
-          {% if page.has_previous %}
-            <a href="?q={{ query }}&amp;page={{ page.previous_page_number }}{{ models }}">
-          {% endif %}&laquo; Anterior{% if page.has_previous %}</a>{% endif %}
+          {% if page_obj.has_previous %}
+            <a href="?q={{ query }}&amp;page={{ page_obj.previous_page_number }}{{ models }}{{ url_facets }}">
+          {% endif %}&laquo; Anterior{% if page_obj.has_previous %}</a>{% endif %}
           |
-          {% if page.has_next %}
-            <a href="?q={{ query }}&amp;page={{ page.next_page_number }}{{ models }}">
-          {% endif %}Próxima &raquo;{% if page.has_next %}</a>{% endif %}
+          {% if page_obj.has_next %}
+            <a href="?q={{ query }}&amp;page={{ page_obj.next_page_number }}{{ models }}{{ url_facets }}">
+          {% endif %}Próxima &raquo;{% if page_obj.has_next %}</a>{% endif %}
         </div>
       {% endif %}
     {% else %}

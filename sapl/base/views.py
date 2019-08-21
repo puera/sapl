@@ -29,12 +29,13 @@ from django.views.generic import (CreateView, DeleteView, FormView, ListView,
                                   UpdateView)
 from django.views.generic.base import RedirectView, TemplateView
 from django_filters.views import FilterView
-from haystack.views import SearchView
+from haystack.forms import FacetedModelSearchForm
+from haystack.generic_views import FacetedSearchView
 from haystack.query import SearchQuerySet
 
 from sapl import settings
 from sapl.audiencia.models import AudienciaPublica, TipoAudienciaPublica
-from sapl.base.forms import AutorForm, AutorFormForAdmin, TipoAutorForm
+from sapl.base.forms import AutorForm, AutorFormForAdmin, TipoAutorForm, HackedFacetedModelSearchForm
 from sapl.base.models import Autor, TipoAutor
 from sapl.comissoes.models import Reuniao, Comissao
 from sapl.crud.base import CrudAux, make_pagination
@@ -1958,22 +1959,33 @@ class AppConfigCrud(CrudAux):
             return HttpResponseRedirect(reverse('sapl.base:appconfig_create'))
 
 
-class SaplSearchView(SearchView):
+class SaplSearchView(FacetedSearchView):
     results_per_page = 10
+    facet_fields = ['ano', 'tipo']
+    form_class = HackedFacetedModelSearchForm
 
-    def get_context(self):
-        context = super(SaplSearchView, self).get_context()
+    def get_context_data(self, **kwargs):
+        context = super(SaplSearchView, self).get_context_data(**kwargs)
 
-        if 'models' in self.request.GET:
-            models = self.request.GET.getlist('models')
-        else:
-            models = []
+        models = self.request.GET.getlist('models', [])
+        context['models'] = '&models='
+        context['models'] = '&models='.join(models)
 
-        context['models'] = ''
+        path = self.request.get_full_path()
+        query_params = path.split('?')
+        if len(query_params) == 2:
+            param_parts = query_params[1].split('&')
+            queried_facets = set([i.split('=')[1] for i in param_parts if i.startswith('selected_facets')])
+            queried_models = set([i.split("=")[1] for i in param_parts if i.startswith('models')])
+            context['queried_models'] = queried_models
+            context['queried_facets'] = queried_facets
+            if queried_facets:
+                context['url_facets'] = '&selected_facets='
+                context['url_facets'] = '&selected_facets='.join(queried_facets)
 
-        for m in models:
-            context['models'] = context['models'] + '&models=' + m
-
+        import re
+        path = self.request.get_full_path()
+        context['pageless_url'] = re.sub('&page=\d+', '', path)
         return context
 
 

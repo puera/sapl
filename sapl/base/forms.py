@@ -17,6 +17,7 @@ from django.utils import timezone
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
 import django_filters
+from haystack.forms import FacetedModelSearchForm
 
 from sapl.audiencia.models import AudienciaPublica, TipoAudienciaPublica
 from sapl.audiencia.models import AudienciaPublica, TipoAudienciaPublica
@@ -1653,3 +1654,14 @@ class RelatorioNormasPorAutorFilterSet(django_filters.FilterSet):
                      row3,
                      form_actions(label='Pesquisar'))
         )
+
+class HackedFacetedModelSearchForm(FacetedModelSearchForm):
+    """
+        Este é um hack vindo de https://github.com/django-haystack/django-haystack/pull/705
+        para possibilitar o uso de FacetedSearchView com FacetedModelSearchView. QUANDO/SE
+        o PR https://github.com/django-haystack/django-haystack/pull/1400 for integrado ao
+        Haystack essa classe pode ser substituida por FacetedModelSearchForm
+    """
+    def __init__(self, *args, **kwargs):
+        self.selected_facets = kwargs.pop("selected_facets", [])
+        super().__init__(*args, **kwargs)
