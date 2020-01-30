@@ -1210,6 +1210,14 @@ class ListarInconsistenciasView(PermissionRequiredMixin, ListView):
         return tabela
 
 def materias_anexadas_ciclicas():
+
+    def is_ciclo_unique(ciclo, ciclos_set):
+        if set(ciclo) not in ciclos_set:
+            ciclos_set.append(set(ciclo))
+            return True
+        else:
+            return False
+
     ciclos = []
 
     for a in Anexada.objects.select_related('materia_principal',
@@ -1236,12 +1244,6 @@ def materias_anexadas_ciclicas():
 
     return ciclos_unique
 
-def is_ciclo_unique(ciclo, ciclos_set):
-         if set(ciclo) not in ciclos_set:
-             ciclos_set.append(set(ciclo))
-             return True
-         else:
-             return False
 
 def anexados_ciclicos(ofMateriaLegislativa):
     ciclicos = []
