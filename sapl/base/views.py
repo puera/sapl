@@ -1198,7 +1198,7 @@ class ListarInconsistenciasView(PermissionRequiredMixin, ListView):
         tabela.append(
             ('anexadas_ciclicas',
              'Matérias Anexadas cíclicas',
-             len(materias_anexadas_ciclicas())
+             len(anexados_ciclicos(True))
              )
         )
         tabela.append(
@@ -1209,7 +1209,8 @@ class ListarInconsistenciasView(PermissionRequiredMixin, ListView):
         )
         return tabela
 
-def materias_anexadas_ciclicas():
+
+def anexados_ciclicos(ofMateriaLegislativa):
 
     def is_ciclo_unique(ciclo, ciclos_set):
         if set(ciclo) not in ciclos_set:
@@ -1218,19 +1219,34 @@ def materias_anexadas_ciclicas():
         else:
             return False
 
-    ciclos = []
-
-    for a in Anexada.objects.select_related('materia_principal',
+    if ofMateriaLegislativa:
+        query = Anexada.objects.select_related('materia_principal',
                                             'materia_anexada',
                                             'materia_principal__tipo',
-                                            'materia_anexada__tipo'):
-        visitados = [a.materia_principal]
-        anexadas = [a.materia_anexada]
+                                            'materia_anexada__tipo')
+    else:
+        query = Anexado.objects.select_related('documento_principal',
+                                            'documento_anexado',
+                                            'documento_principal__tipo',
+                                            'documento_anexado__tipo')
+
+    ciclos = []
+
+    for a in query:
+        if ofMateriaLegislativa:
+            visitados = [a.materia_principal]
+            anexadas = [a.materia_anexada]
+        else:
+            visitados = [a.documento_principal]
+            anexadas = [a.documento_anexado]
         while len(anexadas) > 0:
             ma = anexadas.pop()
             if ma not in visitados:
                 visitados.append(ma)
-                anexadas.extend([a.materia_anexada for a in Anexada.objects.filter(materia_principal=ma)])
+                if ofMateriaLegislativa:
+                    anexadas.extend([a.materia_anexada for a in Anexada.objects.filter(materia_principal=ma)])
+                else:
+                    anexadas.extend([a.documento_anexado for a in Anexado.objects.filter(documento_principal=ma)])
             else:
                 ciclo_list = visitados + [ma]
                 ciclos.append(ciclo_list)
@@ -1243,61 +1259,6 @@ def materias_anexadas_ciclicas():
     ciclos_unique = [e for e in ciclos if is_ciclo_unique(e, ciclos_set)]
 
     return ciclos_unique
-
-
-def anexados_ciclicos(ofMateriaLegislativa):
-    ciclicos = []
-
-    if ofMateriaLegislativa:
-        principais = Anexada.objects.values(
-            'materia_principal'
-        ).annotate(
-            count=Count('materia_principal')
-        ).filter(count__gt=0).order_by('-data_anexacao')
-    else:
-        principais = Anexado.objects.values(
-            'documento_principal'
-        ).annotate(
-            count=Count('documento_principal')
-        ).filter(count__gt=0).order_by('-data_anexacao')
-
-    for principal in principais:
-        anexados_total = []
-
-        if ofMateriaLegislativa:
-            anexados = Anexada.objects.filter(
-                materia_principal=principal['materia_principal']
-            ).order_by('-data_anexacao')
-        else:
-            anexados = Anexado.objects.filter(
-                documento_principal=principal['documento_principal']
-            ).order_by('-data_anexacao')
-
-        anexados_temp = list(anexados)
-        while anexados_temp:
-            anexado = anexados_temp.pop()
-            if ofMateriaLegislativa:
-                if anexado.materia_anexada not in anexados_total:
-                    if not principal['materia_principal'] == anexado.materia_anexada.pk:
-                        anexados_total.append(anexado.materia_anexada)
-                        anexados_anexado = Anexada.objects.filter(
-                            materia_principal=anexado.materia_anexada
-                        )
-                        anexados_temp.extend(anexados_anexado)
-                    else:
-                        ciclicos.append((anexado.data_anexacao, anexado.materia_principal, anexado.materia_anexada))
-            else:
-                if anexado.documento_anexado not in anexados_total:
-                    if not principal['documento_principal'] == anexado.documento_anexado.pk:
-                        anexados_total.append(anexado.documento_anexado)
-                        anexados_anexado = Anexado.objects.filter(
-                            documento_principal=anexado.documento_anexado
-                        )
-                        anexados_temp.extend(anexados_anexado)
-                    else:
-                        ciclicos.append((anexado.data_anexacao, anexado.documento_principal, anexado.documento_anexado))
-
-    return ciclicos
 
 
 class ListarAnexadosCiclicosView(PermissionRequiredMixin, ListView):
@@ -1334,7 +1295,7 @@ class ListarAnexadasCiclicasView(PermissionRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return materias_anexadas_ciclicas()
+        return anexados_ciclicos(True)
 
     def get_context_data(self, **kwargs):
         context = super(
