@@ -1210,7 +1210,7 @@ class ListarInconsistenciasView(PermissionRequiredMixin, ListView):
         return tabela
 
 
-def anexados_ciclicos(ofMateriaLegislativa):
+def anexados_ciclicos(isMateriaLegislativa):
 
     def is_ciclo_unique(ciclo, ciclos_set):
         if set(ciclo) not in ciclos_set:
@@ -1219,7 +1219,7 @@ def anexados_ciclicos(ofMateriaLegislativa):
         else:
             return False
 
-    if ofMateriaLegislativa:
+    if isMateriaLegislativa:
         query = Anexada.objects.select_related('materia_principal',
                                             'materia_anexada',
                                             'materia_principal__tipo',
@@ -1233,7 +1233,7 @@ def anexados_ciclicos(ofMateriaLegislativa):
     ciclos = []
 
     for a in query:
-        if ofMateriaLegislativa:
+        if isMateriaLegislativa:
             visitados = [a.materia_principal]
             anexadas = [a.materia_anexada]
         else:
@@ -1243,7 +1243,7 @@ def anexados_ciclicos(ofMateriaLegislativa):
             ma = anexadas.pop()
             if ma not in visitados:
                 visitados.append(ma)
-                if ofMateriaLegislativa:
+                if isMateriaLegislativa:
                     anexadas.extend([a.materia_anexada for a in Anexada.objects.filter(materia_principal=ma)])
                 else:
                     anexadas.extend([a.documento_anexado for a in Anexado.objects.filter(documento_principal=ma)])
