@@ -1495,3 +1495,24 @@ def relatorio_sessao_plenaria_pdf(request, pk):
 
     return response
 
+def etiqueta_protocolo(request):
+    base_url = request.build_absolute_uri()
+    casa = CasaLegislativa.objects.first()
+    rodape = ' '.join(get_rodape(casa))
+
+    context = {'data': dt.today().strftime('%d/%m/%Y')}
+
+    html_template = render_to_string('relatorios/etiqueta_protocolo.html', context)
+    
+
+    html = HTML(base_url=base_url, string=html_template)
+    main_doc = html.render(stylesheets=[CSS(string='@page {size: 199.9mm 143.4mm; margin:1cm;}')])
+   
+    pdf_file = main_doc.write_pdf()
+
+    response = HttpResponse(content_type='application/pdf;')
+    response['Content-Disposition'] = 'inline; filename=relatorio.pdf'
+    response['Content-Transfer-Encoding'] = 'binary'
+    response.write(pdf_file)
+
+    return response
