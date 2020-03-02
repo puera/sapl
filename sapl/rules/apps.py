@@ -6,7 +6,7 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.auth.management import _get_all_permissions
 from django.core import exceptions
-from django.db import models, router
+from django.db import models, router, connection
 from django.db.utils import DEFAULT_DB_ALIAS
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
@@ -242,20 +242,66 @@ def cria_usuarios_padrao():
     rules.cria_usuarios_padrao()
 
 
+def reset_id_model(model):
+
+    query = """SELECT setval(pg_get_serial_sequence('%(table_name)s','id'),
+                coalesce(max("id"), 1), max("id") IS NOT null) 
+                FROM "%(table_name)s";
+            """ % {
+        'table_name': model._meta.db_table
+    }
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            rows = cursor.fetchall()
+
+            if rows[0][0] is None:
+                create_sequence = (
+                    """
+                    DROP SEQUENCE IF EXISTS %(table_name)s_id_seq cascade;
+                    CREATE SEQUENCE %(table_name)s_id_seq start 1
+                        OWNED BY %(table_name)s.id;
+                    ALTER TABLE %(table_name)s
+                        ALTER COLUMN id SET DEFAULT 
+                            nextval('%(table_name)s_id_seq'::regclass);
+                    """ + query
+                ) % {
+                    'table_name': model._meta.db_table
+                }
+                cursor.execute(create_sequence)
+
+    except Exception as e:
+        if 'column "id" does not exist' not in str(e):
+            print('ERRO:', model)
+
+
+def check_ids_sequences(app_config, verbosity=2, interactive=True,
+                        using=DEFAULT_DB_ALIAS, **kwargs):
+
+    models = app_config.models
+
+    for k, model in models.items():
+        if model._meta.managed:
+            reset_id_model(model)
+
+
 def revision_pre_delete_signal(sender, **kwargs):
     with reversion.create_revision():
         kwargs['instance'].save()
         reversion.set_comment("Deletado pelo sinal.")
 
 
+models.signals.pre_delete.connect(
+    receiver=revision_pre_delete_signal,
+    dispatch_uid="pre_delete_signal")
+
 models.signals.post_migrate.connect(
     receiver=update_groups)
 
+models.signals.post_migrate.connect(
+    receiver=check_ids_sequences)
 
 models.signals.post_migrate.connect(
     receiver=create_proxy_permissions,
     dispatch_uid="django.contrib.auth.management.create_permissions")
-
-models.signals.pre_delete.connect(
-    receiver=revision_pre_delete_signal,
-    dispatch_uid="pre_delete_signal")
