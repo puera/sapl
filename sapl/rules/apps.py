@@ -244,6 +244,18 @@ def cria_usuarios_padrao():
 
 def reset_id_model(model):
 
+    # - pg_get_serial_sequence recupera o nome da sequencia que foi
+    # associada para o campo 'id' de table_name, independente do padrão
+    # de criação do nome.
+    # - setval registra:
+    #   - coalesce(max("id"), 1) - o id max para a chave retornada ou 1,
+    #   - max("id") IS NOT null - true se max id retorna nulo
+    # - retornos:
+    #    - [(max id, )]
+    #    - [(None, )] caso não exista sequencia que vincule
+    #                 à tabela e ao id da tabela,
+    #                 mesmo que sequencia exista mas sem vínvulo.
+
     query = """SELECT setval(pg_get_serial_sequence('%(table_name)s','id'),
                 coalesce(max("id"), 1), max("id") IS NOT null) 
                 FROM "%(table_name)s";
@@ -257,6 +269,21 @@ def reset_id_model(model):
             rows = cursor.fetchall()
 
             if rows[0][0] is None:
+                # DROP...
+                # Como não existe sequencia vinculada a tabela e ao id,
+                # ela ainda pode existir mas sem o devído vínculo.
+                # O cascade é, se existe e está vinculada a outra tabela
+                # então tem algo errado que o post_migrate corrigirá
+                # pois no sapl não deveria ocorrer isso.
+                #
+                # CREATE...
+                # (re)cria a a sequencia
+                #
+                # ALTER...
+                # vincula a sequence ao id da tabela
+                #
+                # + query
+                # executa o setval, agora com a sequence organizada
                 create_sequence = (
                     """
                     DROP SEQUENCE IF EXISTS %(table_name)s_id_seq cascade;
