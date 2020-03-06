@@ -17,6 +17,8 @@ from sapl.rules import (SAPL_GROUP_ADMINISTRATIVO, SAPL_GROUP_COMISSOES,
                         SAPL_GROUP_PAINEL, SAPL_GROUP_PROTOCOLO,
                         SAPL_GROUP_SESSAO)
 
+logger = logging.getLogger(__name__)
+
 
 class AppConfig(django.apps.AppConfig):
     name = 'sapl.rules'
@@ -300,7 +302,8 @@ def reset_id_model(model):
 
     except Exception as e:
         if 'column "id" does not exist' not in str(e):
-            print('ERRO:', model)
+            logger.error("Tabela {} não possui campo id".format(
+                model._meta.db_table))
 
 
 def check_ids_sequences(app_config, verbosity=2, interactive=True,
