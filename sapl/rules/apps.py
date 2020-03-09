@@ -272,18 +272,14 @@ def check_sequence_for_model(model):
                             DECLARE
                                 max_id integer := 0;
                             BEGIN
-                    
-                            EXECUTE format('SELECT setval(pg_get_serial_sequence(''%s'',''id''), coalesce(max(id), 1), max(id) IS NOT null) FROM %s', table_name, table_name ) INTO max_id;
-                                        
-                            if max_id is null then
-                            EXECUTE format('DROP SEQUENCE IF EXISTS %s_id_seq cascade', table_name);
+                                EXECUTE format('SELECT setval(pg_get_serial_sequence(''%s'',''id''), coalesce(max(id), 1), max(id) IS NOT null) FROM %s', table_name, table_name ) INTO max_id;
+                                if max_id is null then
+                                    EXECUTE format('DROP SEQUENCE IF EXISTS %s_id_seq cascade', table_name);
                                     EXECUTE format('CREATE SEQUENCE %s_id_seq start 1 OWNED BY %s.id', table_name, table_name);
                                     EXECUTE format('ALTER TABLE %s ALTER COLUMN id SET DEFAULT nextval(''%s_id_seq''::regclass)', table_name, table_name);
-                            EXECUTE format('SELECT setval(pg_get_serial_sequence(''%s'',''id''), coalesce(max(id), 1), max(id) IS NOT null) FROM %s', table_name, table_name ) INTO max_id;
-                    
-                            end if;
+                                    EXECUTE format('SELECT setval(pg_get_serial_sequence(''%s'',''id''), coalesce(max(id), 1), max(id) IS NOT null) FROM %s', table_name, table_name ) INTO max_id;
+                                end if;
                                 return max_id;
-                                
                             END;
                             $$ LANGUAGE plpgsql;
                         """
