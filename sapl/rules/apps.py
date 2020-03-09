@@ -244,66 +244,65 @@ def cria_usuarios_padrao():
     rules.cria_usuarios_padrao()
 
 
-def reset_id_model(model):
+def check_sequence_for_model(model):
 
-    # - pg_get_serial_sequence recupera o nome da sequencia que foi
-    # associada para o campo 'id' de table_name, independente do padrão
-    # de criação do nome.
-    # - setval registra:
-    #   - coalesce(max("id"), 1) - o id max para a chave retornada ou 1,
-    #   - max("id") IS NOT null - true se max id retorna nulo
-    # - retornos:
-    #    - [(max id, )]
-    #    - [(None, )] caso não exista sequencia que vincule
-    #                 à tabela e ao id da tabela,
-    #                 mesmo que sequencia exista mas sem vínvulo.
+    with connection.cursor() as c:
+        try:
+            c.callproc(
+                "fn_check_sequence_for_model", [
+                    model._meta.db_table
+                ])
+            #results = c.fetchone()
+        except Exception as e:
+            if('function fn_check_sequence_for_model(unknown)'
+                    ' does not exist' not in str(e)):
+                # Se ocorreu um erro e não é por inexistência da SP
+                logger.error(
+                    "Falha na Execução da Store Procedure "
+                    "para a tabela {}. {}".format(
+                        model._meta.db_table, str(e)))
+            else:
+                # se a execução da SP falhou por ela não existir
+                try:
+                    # cria a SP
+                    c.execute(
+                        """
+                        CREATE OR REPLACE FUNCTION fn_check_sequence_for_model(IN table_name character varying) RETURNS integer AS
+                            $$
+                            DECLARE
+                                max_id integer := 0;
+                            BEGIN
+                    
+                            EXECUTE format('SELECT setval(pg_get_serial_sequence(''%s'',''id''), coalesce(max(id), 1), max(id) IS NOT null) FROM %s', table_name, table_name ) INTO max_id;
+                                        
+                            if max_id is null then
+                            EXECUTE format('DROP SEQUENCE IF EXISTS %s_id_seq cascade', table_name);
+                                    EXECUTE format('CREATE SEQUENCE %s_id_seq start 1 OWNED BY %s.id', table_name, table_name);
+                                    EXECUTE format('ALTER TABLE %s ALTER COLUMN id SET DEFAULT nextval(''%s_id_seq''::regclass)', table_name, table_name);
+                            EXECUTE format('SELECT setval(pg_get_serial_sequence(''%s'',''id''), coalesce(max(id), 1), max(id) IS NOT null) FROM %s', table_name, table_name ) INTO max_id;
+                    
+                            end if;
+                                return max_id;
+                                
+                            END;
+                            $$ LANGUAGE plpgsql;
+                        """
+                    )
+                    # tenta executá-la novamente
+                    c.callproc(
+                        "fn_check_sequence_for_model", [
+                            model._meta.db_table
+                        ])
+                    #results = c.fetchone()
+                except Exception as e:
+                    # se falou na criação/execução
+                    logger.error(
+                        "Falha na Criação/Execução da Store Procedure "
+                        "para o model {}. {}".format(
+                            model._meta.db_table, str(e)))
 
-    query = """SELECT setval(pg_get_serial_sequence('%(table_name)s','id'),
-                coalesce(max("id"), 1), max("id") IS NOT null) 
-                FROM "%(table_name)s";
-            """ % {
-        'table_name': model._meta.db_table
-    }
-
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute(query)
-            rows = cursor.fetchall()
-
-            if rows[0][0] is None:
-                # DROP...
-                # Como não existe sequencia vinculada a tabela e ao id,
-                # ela ainda pode existir mas sem o devído vínculo.
-                # O cascade é, se existe e está vinculada a outra tabela
-                # então tem algo errado que o post_migrate corrigirá
-                # pois no sapl não deveria ocorrer isso.
-                #
-                # CREATE...
-                # (re)cria a a sequencia
-                #
-                # ALTER...
-                # vincula a sequence ao id da tabela
-                #
-                # + query
-                # executa o setval, agora com a sequence organizada
-                create_sequence = (
-                    """
-                    DROP SEQUENCE IF EXISTS %(table_name)s_id_seq cascade;
-                    CREATE SEQUENCE %(table_name)s_id_seq start 1
-                        OWNED BY %(table_name)s.id;
-                    ALTER TABLE %(table_name)s
-                        ALTER COLUMN id SET DEFAULT 
-                            nextval('%(table_name)s_id_seq'::regclass);
-                    """ + query
-                ) % {
-                    'table_name': model._meta.db_table
-                }
-                cursor.execute(create_sequence)
-
-    except Exception as e:
-        if 'column "id" does not exist' not in str(e):
-            logger.error("Tabela {} não possui campo id".format(
-                model._meta.db_table))
+        finally:
+            c.close()
 
 
 def check_ids_sequences(app_config, verbosity=2, interactive=True,
@@ -313,7 +312,7 @@ def check_ids_sequences(app_config, verbosity=2, interactive=True,
 
     for k, model in models.items():
         if model._meta.managed:
-            reset_id_model(model)
+            check_sequence_for_model(model)
 
 
 def revision_pre_delete_signal(sender, **kwargs):
