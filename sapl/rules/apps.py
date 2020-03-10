@@ -245,20 +245,20 @@ def cria_usuarios_padrao():
 
 
 def check_sequence_for_model(model):
+    SP_NAME = 'fn_check_sequence_for_model'
 
     with connection.cursor() as c:
         try:
             c.callproc(
-                "fn_check_sequence_for_model", [
+                SP_NAME, [
                     model._meta.db_table
                 ])
-            #results = c.fetchone()
         except Exception as e:
-            if('function fn_check_sequence_for_model(unknown)'
-                    ' does not exist' not in str(e)):
+            if('function {}(unknown)'
+                    ' does not exist'.format(SP_NAME) not in str(e)):
                 # Se ocorreu um erro e não é por inexistência da SP
                 logger.error(
-                    "Falha na Execução da Store Procedure "
+                    "Falha na execução da Store Procedure "
                     "para a tabela {}. {}".format(
                         model._meta.db_table, str(e)))
             else:
@@ -267,7 +267,7 @@ def check_sequence_for_model(model):
                     # cria a SP
                     c.execute(
                         """
-                        CREATE OR REPLACE FUNCTION fn_check_sequence_for_model(IN table_name character varying) RETURNS integer AS
+                        CREATE OR REPLACE FUNCTION {}(IN table_name character varying) RETURNS integer AS
                             $$
                             DECLARE
                                 max_id integer := 0;
@@ -282,20 +282,30 @@ def check_sequence_for_model(model):
                                 return max_id;
                             END;
                             $$ LANGUAGE plpgsql;
-                        """
+                        """.format(SP_NAME)
                     )
-                    # tenta executá-la novamente
+                except Exception as e:
+                    # se falhou na criação
+                    logger.error(
+                        "Falha na criação da Store Procedure {} "
+                        "para o tabela {}. {}".format(
+                            SP_NAME,
+                            model._meta.db_table,
+                            str(e)))
+                try:
+                    # tenta executá-la após criação.
                     c.callproc(
-                        "fn_check_sequence_for_model", [
+                        SP_NAME, [
                             model._meta.db_table
                         ])
-                    #results = c.fetchone()
                 except Exception as e:
-                    # se falou na criação/execução
+                    # se falhou na execução
                     logger.error(
-                        "Falha na Criação/Execução da Store Procedure "
-                        "para o model {}. {}".format(
-                            model._meta.db_table, str(e)))
+                        "Falha na execução da Store Procedure {} "
+                        "para o tabela {}. {}".format(
+                            SP_NAME,
+                            model._meta.db_table,
+                            str(e)))
 
         finally:
             c.close()
@@ -307,7 +317,7 @@ def check_ids_sequences(app_config, verbosity=2, interactive=True,
     models = app_config.models
 
     for k, model in models.items():
-        if model._meta.managed:
+        if model._meta.managed and model._meta.has_auto_field:
             check_sequence_for_model(model)
 
 
