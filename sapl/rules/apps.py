@@ -244,8 +244,8 @@ def cria_usuarios_padrao():
     rules.cria_usuarios_padrao()
 
 
-def check_sequence_for_model(model):
-    SP_NAME = 'fn_check_sequence_for_model'
+def fn_check_sequence_for_model(model):
+    SP_NAME = fn_check_sequence_for_model.__name__
 
     with connection.cursor() as c:
         try:
@@ -318,7 +318,7 @@ def check_ids_sequences(app_config, verbosity=2, interactive=True,
 
     for k, model in models.items():
         if model._meta.managed and model._meta.has_auto_field:
-            check_sequence_for_model(model)
+            fn_check_sequence_for_model(model)
 
 
 def revision_pre_delete_signal(sender, **kwargs):
