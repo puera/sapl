@@ -754,8 +754,7 @@ class MesaDiretoraView(FormView):
             return self.validation(request)
 
         legislatura = Legislatura.objects.first()
-        sessoes = SessaoLegislativa.objects.filter(
-            legislatura=legislatura).order_by("data_inicio")
+        sessoes = SessaoLegislativa.objects.filter(legislatura=legislatura).order_by("-data_inicio")
 
         year = timezone.now().year
         month = timezone.now().month
