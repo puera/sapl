@@ -22,6 +22,12 @@ SEQUENCIA_NUMERACAO_PROTOCOLO = (('A', _('Sequencial por ano')),
                        ('L', _('Sequencial por legislatura')),
                        ('U', _('Sequencial único')))
 
+REGISTRO_NUMERACAO_MATERIA = (
+    ('N', _('Não registrar numeração')),
+    ('A', _('Registrar numeração - sequencial por ano')),
+    ('U', _('Registrar numeração - sequencial única'))
+)
+
 SEQUENCIA_NUMERACAO_PROPOSICAO = (('A', _('Sequencial por ano para cada autor')),
                        ('B', _('Sequencial por ano indepententemente do autor')))
 
@@ -107,6 +113,12 @@ class AppConfig(models.Model):
         max_length=1,
         verbose_name=_('Sequência de numeração de protocolos'),
         choices=SEQUENCIA_NUMERACAO_PROTOCOLO, default='A')
+
+    registro_numeracao_materia = models.CharField(
+        max_length=1,
+        verbose_name=_('Registro de numeração na criação de matérias'),
+        choices=REGISTRO_NUMERACAO_MATERIA, default='N'
+    )
 
     esfera_federacao = models.CharField(
         max_length=1,
