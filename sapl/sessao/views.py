@@ -729,9 +729,12 @@ class MateriaOrdemDiaCrud(MasterDetailCrud):
     public = [RP_LIST, RP_DETAIL]
 
     class BaseMixin(MasterDetailCrud.BaseMixin):
-        list_field_names = ['numero_ordem', 'materia',
-                            ('materia__ementa', '', 'observacao'),
-                            'resultado']
+        list_field_names = [
+            'numero_ordem',
+            'materia',
+            ('materia__ementa', '', 'observacao'),
+            'resultado'
+        ]
 
     class CreateView(MasterDetailCrud.CreateView):
         form_class = OrdemDiaForm
@@ -742,18 +745,15 @@ class MateriaOrdemDiaCrud(MasterDetailCrud):
             return context
 
         def get_initial(self):
-            self.initial['data_ordem'] = SessaoPlenaria.objects.get(
-                pk=self.kwargs['pk']).data_inicio.strftime('%d/%m/%Y')
-            max_numero_ordem = OrdemDia.objects.filter(
-                sessao_plenaria=self.kwargs['pk']).aggregate(
-                    Max('numero_ordem'))['numero_ordem__max']
-            self.initial['numero_ordem'] = (
-                max_numero_ordem if max_numero_ordem else 0) + 1
+            self.initial['data_ordem'] = SessaoPlenaria.objects.get(pk=self.kwargs['pk'])\
+                                                               .data_inicio.strftime('%d/%m/%Y')
+            max_numero_ordem = OrdemDia.objects.filter(sessao_plenaria=self.kwargs['pk'])\
+                                               .aggregate(Max('numero_ordem'))['numero_ordem__max']
+            self.initial['numero_ordem'] = (max_numero_ordem if max_numero_ordem else 0) + 1
             return self.initial
 
         def get_success_url(self):
-            return reverse('sapl.sessao:ordemdia_list',
-                           kwargs={'pk': self.kwargs['pk']})
+            return reverse('sapl.sessao:ordemdia_list', kwargs={'pk': self.kwargs['pk']})
 
     class UpdateView(MasterDetailCrud.UpdateView):
         form_class = OrdemDiaForm
@@ -3583,7 +3583,7 @@ class PautaSessaoDetailView(DetailView):
         materias_expediente = []
         for m in ExpedienteMateria.objects \
                 .prefetch_related('registrovotacao_set') \
-                .select_related("materia", "materia__tipo") \
+                .select_related("materia", "materia__tipo", "situacao_pauta", "situacao_pauta__status") \
                 .filter(sessao_plenaria_id=self.object.id):
             rv = m.registrovotacao_set.first()
             if rv:
@@ -3593,7 +3593,6 @@ class PautaSessaoDetailView(DetailView):
                 resultado = _('Matéria não votada')
                 resultado_observacao = _(' ')
 
-            ultima_tramitacao = m.materia.tramitacao_set.order_by('-data_tramitacao', '-id').first()
             numeracao = m.materia.numeracao_set.first()
 
             materias_expediente.append({
@@ -3604,7 +3603,7 @@ class PautaSessaoDetailView(DetailView):
                 'numero': m.numero_ordem,
                 'resultado': resultado,
                 'resultado_observacao': resultado_observacao,
-                'situacao': ultima_tramitacao.status if ultima_tramitacao else _("Não informada"),
+                'situacao_pauta': m.situacao_pauta.status if m.situacao_pauta else _('Não informada'),
                 'processo': f'{str(numeracao.numero_materia)}/{str(numeracao.ano_materia)}' if numeracao else '-',
                 'autor': [str(x.autor) for x in m.materia.autoria_set.select_related('autor').all()]
             })
@@ -3632,7 +3631,7 @@ class PautaSessaoDetailView(DetailView):
         materias_ordem = []
         for o in OrdemDia.objects \
                 .prefetch_related('registrovotacao_set') \
-                .select_related("materia", "materia__tipo") \
+                .select_related("materia", "materia__tipo", "situacao_pauta", "situacao_pauta__status") \
                 .filter(sessao_plenaria_id=self.object.id):
             # Verificar resultado
             rv = o.registrovotacao_set.first()
@@ -3643,7 +3642,6 @@ class PautaSessaoDetailView(DetailView):
                 resultado = _('Matéria não votada')
                 resultado_observacao = _(' ')
 
-            ultima_tramitacao = o.materia.tramitacao_set.order_by('-data_tramitacao', '-id').first()
             numeracao = o.materia.numeracao_set.first()
 
             materias_ordem.append({
@@ -3654,7 +3652,7 @@ class PautaSessaoDetailView(DetailView):
                 'numero': o.numero_ordem,
                 'resultado': resultado,
                 'resultado_observacao': resultado_observacao,
-                'situacao': ultima_tramitacao.status if ultima_tramitacao else _("Não informada"),
+                'situacao_pauta': o.situacao_pauta.status if o.situacao_pauta else _('Não informada'),
                 'processo': f'{str(numeracao.numero_materia)}/{str(numeracao.ano_materia)}' if numeracao else '-',
                 'autor': [str(x.autor) for x in Autoria.objects.select_related("autor").filter(materia_id=o.materia_id)]
             })
