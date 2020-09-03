@@ -2,12 +2,5 @@
 {% load i18n crispy_forms_tags menus%}
 
 {% block base_content %}
-
-<div class="container-tabaux">
-	<ul class="list">
-		{% menu 'layouts.yaml'%}
-	</ul>
-
-</div>
-
+{% crispy form %}
 {% endblock base_content %}

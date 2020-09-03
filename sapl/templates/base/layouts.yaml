@@ -11,21 +11,24 @@ CasaLegislativa:
   - informacao_geral
 
 AppConfig:
-  {% trans 'Configurações da Aplicação' %}:
+  
+  
+  
+  {% trans 'Configurações Gerais' %}:
   - documentos_administrativos
 
-  {% trans 'Norma Jurídica' %}:
+  {% trans 'Módulo Normas Jurídicas' %}:
   - esfera_federacao
 
-  {% trans 'Proposições e Protocolo' %}:
+  {% trans 'Módulo Proposições' %}:
   - sequencia_numeracao_proposicao sequencia_numeracao_protocolo inicio_numeracao_protocolo
   - protocolo_manual receber_recibo_proposicao
   - proposicao_incorporacao_obrigatoria escolher_numero_materia_proposicao
 
-  {% trans 'Tramitações' %}:
+  {% trans 'Módulo Matéria Legislativa' %}:
   - tramitacao_materia tramitacao_documento
 
-  {% trans 'Textos Articulados' %}:
+  {% trans 'Módulo Textos Articulados' %}:
   - texto_articulado_proposicao texto_articulado_materia texto_articulado_norma
 
   {% trans 'Estatísticas de acesso' %}:
