@@ -12,10 +12,16 @@ CasaLegislativa:
 
 AppConfig:
   
-  
-  
   {% trans 'Configurações Gerais' %}:
   - documentos_administrativos
+  
+  #{% trans 'Módulo Parlamentares' %}:
+
+  #{% trans 'Módulo Mesa Diretora' %}:
+  
+  #{% trans 'Módulo Comissões' %}:
+  
+  #{% trans 'Módulo Bancadas Parlamentares' %}:
 
   {% trans 'Módulo Normas Jurídicas' %}:
   - esfera_federacao
@@ -31,17 +37,22 @@ AppConfig:
   {% trans 'Módulo Textos Articulados' %}:
   - texto_articulado_proposicao texto_articulado_materia texto_articulado_norma
 
+  #{% trans 'Módulo Sessão Plenária' %}:
+  
+  #{% trans 'Módulo LexML' %}:
+  
+  #{% trans 'Módulo Administrativo' %}:
+
+
   {% trans 'Estatísticas de acesso' %}:
   - estatisticas_acesso_normas
   
   {% trans 'Assinaturas' %}:
   - assinatura_ata
 
-  {% trans 'Cronômetros do Painel' %}:
+  {% trans 'Módulo Painel' %}:
   - cronometro_discurso cronometro_aparte 
   - cronometro_ordem cronometro_consideracoes
-
-  {% trans 'Configurações do Painel' %}:
   - mostrar_brasao_painel
 
 TipoAutor:
